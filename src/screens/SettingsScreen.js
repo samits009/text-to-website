@@ -16,10 +16,12 @@ export default function SettingsScreen({ navigation, apiKey, onSaveKey }) {
         <View style={{ width: 40 }} />
       </View>
       <View style={styles.body}>
-        <Text style={styles.heading}>Optional Gemini API key</Text>
+        <Text style={styles.heading}>Gemini AI Key</Text>
         <Text style={styles.copy}>
-          SiteForge already generates websites on the device. If you paste a Google Gemini key, it
-          designs a custom page from your text instead of using the built-in templates.
+          Paste your Google Gemini API key to generate cinematic, custom HTML5 pages using Gemini 2.0. If no key is set, SiteForge uses the built-in offline engine.
+        </Text>
+        <Text style={styles.subtext}>
+          Get a free key at <Text style={styles.highlight}>aistudio.google.com/app/apikey</Text>
         </Text>
         <TextInput
           style={styles.input}
@@ -66,7 +68,9 @@ const styles = StyleSheet.create({
   link: { color: colors.accent, fontWeight: "700" },
   body: { padding: 20 },
   heading: { color: colors.text, fontSize: 22, fontWeight: "800" },
-  copy: { color: colors.muted, marginTop: 10, marginBottom: 18, lineHeight: 22 },
+  copy: { color: colors.muted, marginTop: 10, marginBottom: 8, lineHeight: 22 },
+  subtext: { color: colors.muted, fontSize: 13, marginBottom: 18 },
+  highlight: { color: colors.accent, fontWeight: "600" },
   input: {
     backgroundColor: colors.card,
     borderColor: colors.line,

@@ -22,16 +22,22 @@ const navTheme = {
 };
 
 export default function App() {
-  const [apiKey, setApiKey] = useState("");
+  const envKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY || "";
+  const [apiKey, setApiKey] = useState(envKey);
 
   useEffect(() => {
     AsyncStorage.getItem(KEY).then((value) => {
-      if (value) setApiKey(value);
+      if (value) {
+        setApiKey(value);
+      } else if (envKey) {
+        setApiKey(envKey);
+      }
     });
-  }, []);
+  }, [envKey]);
 
   async function onSaveKey(value) {
-    setApiKey(value);
+    const nextKey = value || envKey;
+    setApiKey(nextKey);
     if (value) await AsyncStorage.setItem(KEY, value);
     else await AsyncStorage.removeItem(KEY);
   }

@@ -2,6 +2,11 @@ const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 export async function generateWithGemini(prompt, apiKey) {
+  const key = apiKey || process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  if (!key) {
+    throw new Error("No Gemini API key found. Please add your key in Settings or set EXPO_PUBLIC_GEMINI_API_KEY.");
+  }
+
   const instruction = `You are a website designer. Create a complete, self-contained HTML5 page for this request:
 """
 ${prompt}
@@ -15,7 +20,7 @@ Rules:
 - Honor prefers-reduced-motion.
 - Do not use external JS libraries.`;
 
-  const response = await fetch(`${GEMINI_URL}?key=${encodeURIComponent(apiKey)}`, {
+  const response = await fetch(`${GEMINI_URL}?key=${encodeURIComponent(key)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
