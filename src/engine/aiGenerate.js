@@ -1,5 +1,4 @@
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.6-flash"];
 
 export async function generateWithGemini(prompt, apiKey) {
   const key = apiKey || process.env.EXPO_PUBLIC_GEMINI_API_KEY;
@@ -20,25 +19,40 @@ Rules:
 - Honor prefers-reduced-motion.
 - Do not use external JS libraries.`;
 
-  const response = await fetch(`${GEMINI_URL}?key=${encodeURIComponent(key)}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: instruction }] }],
-      generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
-    }),
-  });
+  let lastError = null;
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(err.slice(0, 180) || "Gemini request failed");
+  for (const model of GEMINI_MODELS) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: instruction }] }],
+          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        lastError = new Error(err.slice(0, 180) || "Gemini request failed");
+        continue;
+      }
+
+      const data = await response.json();
+      const parts = data?.candidates?.[0]?.content?.parts || [];
+      const textPart = parts.find((p) => p.text && !p.thought) || parts.find((p) => p.text) || {};
+      let html = textPart.text || "";
+
+      html = html.replace(/^```html\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/, "").trim();
+      if (!html.includes("<html")) {
+        throw new Error("The AI did not return a full HTML page.");
+      }
+      return html;
+    } catch (err) {
+      lastError = err;
+    }
   }
 
-  const data = await response.json();
-  let html = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  html = html.replace(/^```html\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/, "");
-  if (!html.includes("<html")) {
-    throw new Error("The AI did not return a full HTML page.");
-  }
-  return html;
+  throw lastError || new Error("Failed to generate page with Gemini.");
 }
