@@ -15,13 +15,35 @@ import { colors } from "../theme";
 
 function HtmlPreview({ html }) {
   if (Platform.OS === "web") {
-    return createElement("iframe", {
-      title: "website-preview",
-      srcDoc: html,
-      style: { flex: 1, width: "100%", height: "100%", border: "none", background: "white" },
-    });
+    return (
+      <View style={styles.previewContainer}>
+        {createElement("iframe", {
+          title: "website-preview",
+          srcDoc: html,
+          style: {
+            width: "100%",
+            height: "100%",
+            flex: 1,
+            border: "none",
+            backgroundColor: "#ffffff",
+          },
+        })}
+      </View>
+    );
   }
-  return <WebView originWhitelist={["*"]} source={{ html }} style={{ flex: 1 }} />;
+  return (
+    <View style={styles.previewContainer}>
+      <WebView
+        originWhitelist={["*"]}
+        source={{ html }}
+        style={{ flex: 1, backgroundColor: "#ffffff" }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        scalesPageToFit={true}
+        startInLoadingState={true}
+      />
+    </View>
+  );
 }
 
 export default function PreviewScreen({ route, navigation }) {
@@ -97,4 +119,5 @@ const styles = StyleSheet.create({
   tabTextOn: { color: "#0B1220" },
   codeWrap: { flex: 1, backgroundColor: "#070B14" },
   code: { color: "#D1D5DB", fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace", fontSize: 12 },
+  previewContainer: { flex: 1, width: "100%", height: "100%", backgroundColor: "#ffffff" },
 });

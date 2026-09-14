@@ -33,8 +33,15 @@ export default function HomeScreen({ navigation, apiKey }) {
       let html;
       let mode = "local";
       if (apiKey) {
-        html = await generateWithGemini(text, apiKey);
-        mode = "ai";
+        try {
+          html = await generateWithGemini(text, apiKey);
+          mode = "ai";
+        } catch (aiErr) {
+          console.warn("AI generation error, falling back to local generator:", aiErr.message);
+          const spec = parsePrompt(text);
+          html = generateWebsite(spec);
+          mode = "local (AI fallback)";
+        }
       } else {
         const spec = parsePrompt(text);
         html = generateWebsite(spec);
